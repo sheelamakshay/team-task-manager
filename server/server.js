@@ -1,9 +1,9 @@
-const userRoutes = require("./routes/userRoutes");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
+const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const testRoutes = require("./routes/testRoutes");
 const projectRoutes = require("./routes/projectRoutes");
@@ -11,10 +11,23 @@ const taskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 
-// ✅ OPEN CORS FIX FOR VERCEL + LOCALHOST
+// ✅ FORCE CORS FIRST (TOP PRIORITY)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
+// ALSO KEEP CORS PACKAGE
 app.use(cors());
 
-// ✅ Middleware
+// Middleware
 app.use(express.json());
 
 // Routes
@@ -29,7 +42,7 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// MongoDB Connection
+// MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
